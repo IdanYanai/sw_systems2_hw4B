@@ -37,10 +37,29 @@ namespace ariel {
                 int victimIndex = findClosestCharacter(enemies, this->leader);
                 Character* victim = enemies[victimIndex];
 
+                // Cowboys attack
                 for(int i=0;i<allies.size();i++) {
                     Cowboy* temp = dynamic_cast<Cowboy*>(allies[i]);
                     if(temp != nullptr) {
-                        temp->shoot(victim);
+                        if(temp->hasBullets()) {
+                            temp->shoot(victim);
+                        }
+                        else {
+                            temp->reload();
+                        }
+                    }
+                }
+
+                // Ninjas attack
+                for(int i=0;i<allies.size();i++) {
+                    Ninja* temp = dynamic_cast<Ninja*>(allies[i]);
+                    if(temp != nullptr) {
+                        if(temp->distance(victim) <= 1) {
+                            temp->slash(victim);
+                        }
+                        else {
+                            temp->move(victim);
+                        }
                     }
                 }
 
