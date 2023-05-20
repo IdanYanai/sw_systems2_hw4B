@@ -15,15 +15,15 @@ namespace ariel {
                 return sqrt(pow(this->x - other.getX(), 2) + pow(this->y - other.getY(), 2));
             }
 
-            static Point moveTowards(Point src, Point dst, int distance) {
-                double realDistance = src.distance(dst);
-                if(distance >= realDistance) {
+            static Point moveTowards(Point src, Point dst, int speed) {
+                double distance = src.distance(dst);
+                if(speed >= distance) {
                     return dst;
                 }
                 else {
-                    double ratio = distance / realDistance;
-                    double newX = src.getX() + ratio * dst.getX();
-                    double newY = src.getY() + ratio * dst.getY();
+                    double ratio = speed / distance;
+                    double newX = src.getX() + ratio * (dst.getX() - src.getX());
+                    double newY = src.getY() + ratio * (dst.getY() - src.getY());
                     return Point(newX, newY);
                 }
             }

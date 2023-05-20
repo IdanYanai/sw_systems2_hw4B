@@ -13,10 +13,10 @@ namespace ariel {
     class Team {
         private:
             vector<Character*> allies;
-            Character* leader;
 
         public:
-            Team(Character* leada) : leader(leada) {}
+            // leader index is always 0
+            Team(Character* leada) { this->allies.push_back(leada);}
             ~Team() {}
 
             void add(Character* toAdd) { allies.push_back(toAdd);}
@@ -29,17 +29,17 @@ namespace ariel {
                 // Check if leader is dead and change to closest ally if true
                 if( ! (enemyLeader->isAlive())) {
                     int minIndex = findClosestCharacter(enemies, enemyLeader);
-                    other->setLeader(enemies[minIndex]);
+                    other->setLeader(minIndex);
                     enemies.erase(enemies.begin() + minIndex);
                 }
 
                 // Find enemy thats closest to own leader
-                int victimIndex = findClosestCharacter(enemies, this->leader);
-                Character* victim = enemies[victimIndex];
+                int victimIndex = findClosestCharacter(enemies, allies[size_t(0)]);
+                Character* victim = enemies[size_t(victimIndex)];
 
                 // Cowboys attack
                 for(int i=0;i<allies.size();i++) {
-                    Cowboy* temp = dynamic_cast<Cowboy*>(allies[i]);
+                    Cowboy* temp = dynamic_cast<Cowboy*>(allies[size_t(i)]);
                     if(temp != nullptr) {
                         if(temp->hasBullets()) {
                             temp->shoot(victim);
@@ -48,11 +48,19 @@ namespace ariel {
                             temp->reload();
                         }
                     }
+
+                    if(!(victim->isAlive())) {
+                        cout << victim->print() << " has died" << endl;
+                        delete victim;
+                        enemies.erase(enemies.begin() + victimIndex);
+                        int victimIndex = findClosestCharacter(enemies, allies[size_t(0)]);
+                        Character* victim = enemies[size_t(victimIndex)];
+                    }
                 }
 
                 // Ninjas attack
                 for(int i=0;i<allies.size();i++) {
-                    Ninja* temp = dynamic_cast<Ninja*>(allies[i]);
+                    Ninja* temp = dynamic_cast<Ninja*>(allies[size_t(i)]);
                     if(temp != nullptr) {
                         if(temp->distance(victim) <= 1) {
                             temp->slash(victim);
@@ -61,33 +69,41 @@ namespace ariel {
                             temp->move(victim);
                         }
                     }
+
+                    if(!(victim->isAlive())) {
+                        cout << victim->print() << " has died" << endl;
+                        delete victim;
+                        enemies.erase(enemies.begin() + victimIndex);
+                        int victimIndex = findClosestCharacter(enemies, allies[size_t(0)]);
+                        Character* victim = enemies[size_t(victimIndex)];
+                    }
                 }
-
-
-
             }
 
             void print() {
                 for(int i=0;i<allies.size();i++)
-                    cout << allies[i]->print() << " ";
-                cout << endl;
+                    cout << allies[size_t(i)]->print() << "\n";
+                cout << "------" << endl;
             }
 
-            Character* getLeader() { return this->leader;}
-            void setLeader(Character* newone) { this->leader = newone;}
+            Character* getLeader() { return this->allies[size_t(0)];}
+            void setLeader(int newLeaderIndex) {
+                delete this->allies[size_t(0)];
+                this->allies[size_t(0)] = this->allies[size_t(newLeaderIndex)];
+                this->allies.erase(allies.begin() + newLeaderIndex);
+            }
             vector<Character*> getAllies() { return this->allies;}
 
             static int findClosestCharacter(vector<Character*> team, Character* someone) {
                 int minDistance = 9999;
                 int minIndex = 0;
                 for(int i=0;i<team.size();i++) {
-                    if(team[i]->distance(someone) < minDistance) {
-                        minDistance = team[i]->distance(someone);
+                    if(team[size_t(i)]->distance(someone) < minDistance) {
+                        minDistance = team[size_t(i)]->distance(someone);
                         minIndex = i;
                     }
                 }
                 return minIndex;
             }
-
     };
 }

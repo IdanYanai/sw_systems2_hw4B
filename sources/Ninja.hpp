@@ -13,7 +13,7 @@ namespace ariel {
             Ninja(string name, Point location, int hitpoints, int speed) 
             : Character(name, location, hitpoints), speed(speed) {} 
 
-            void move(Character* enemy) { Point::moveTowards(this->location, enemy->getLocation(), this->getSpeed());}
+            void move(Character* enemy) { this->location = Point::moveTowards(this->location, enemy->getLocation(), this->getSpeed());}
             void slash(Character* enemy) {
                 if(this->distance(enemy) <= 1) {
                     enemy->hit(40);

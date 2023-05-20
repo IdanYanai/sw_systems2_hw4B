@@ -21,13 +21,14 @@ namespace ariel {
             virtual ~Character() {}
 
             bool isAlive() const { return (this->hitPoints > 0);}
-            int distance(Character* enemy) { this->location.distance(enemy->getLocation());}
+            int distance(Character* enemy) { return this->location.distance(enemy->getLocation());}
             void hit(int damage) { this->hitPoints -= damage;}
             string getName() const { return this->name;}
             Point getLocation() const { return this->location;}
             string print() { 
                 stringstream ss;
                 ss << this->name << ", " << this->hitPoints << ", " << this->location;
+                return ss.str();
             }
             
     };
