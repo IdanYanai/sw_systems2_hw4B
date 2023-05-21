@@ -1,25 +1,25 @@
 #pragma once
 
-using namespace std;
-
 #include "Character.hpp"
+
+const int ninja_damage = 40;
 
 namespace ariel {
     class Ninja : public Character{
-        protected:
-            int speed;
+        private:
+            int const speed;
 
         public:
-            Ninja(string name, Point location, int hitpoints, int speed) 
-            : Character(name, location, hitpoints), speed(speed) {} 
+            Ninja(string name, Point location, int hitpoints, int const speed) 
+            : Character(std::move(name), location, hitpoints), speed(speed) {} 
 
-            void move(Character* enemy) { this->location = Point::moveTowards(this->location, enemy->getLocation(), this->getSpeed());}
+            void move(Character* enemy) { this->setLocation(Point::moveTowards(this->getLocation(), enemy->getLocation(), this->getSpeed()));}
             void slash(Character* enemy) {
                 if(this->distance(enemy) <= 1) {
-                    enemy->hit(40);
+                    enemy->hit(ninja_damage);
                 }
             }
 
-            int getSpeed() {return this->speed;}
+            int getSpeed() const {return this->speed;}
     };
 }

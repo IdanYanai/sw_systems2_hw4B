@@ -1,9 +1,13 @@
+#pragma once
+
 #include <iostream>
 #include <sstream>
 
-using namespace std;
-
 #include "Character.hpp"
+
+const int cowboy_hp = 110;
+const int mag_size = 6;
+const int cowboy_damage = 10;
 
 namespace ariel {
     class Cowboy : public Character{
@@ -12,11 +16,10 @@ namespace ariel {
 
         public:
             Cowboy(string name, Point location)
-             : Character(name, location, 110), bullets(6) {}
-            ~Cowboy() {}
+             : Character(std::move(name), location, cowboy_hp), bullets(mag_size) {}
 
-            bool hasBullets() { return (this->bullets > 0);}
-            void reload() { this->bullets = 6;}
-            void shoot(Character* enemy) { enemy->hit(10);}
+            bool hasboolets() const { return (this->bullets > 0);}
+            void reload() { this->bullets = mag_size;}
+            static void shoot(Character* enemy) { enemy->hit(cowboy_damage);}
     };
 }
