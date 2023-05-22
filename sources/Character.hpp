@@ -13,11 +13,12 @@ namespace ariel {
             Point location;
             int hitPoints;
             string name;
+            bool inTeam;
 
         public:
             // Character() : location(Point(0,0)), hitPoints(0), name("Bob") {}
             Character(string name, Point location, int hitpoints)
-             : location(location), hitPoints(hitpoints), name(move(name)) {}
+             : location(location), hitPoints(hitpoints), name(move(name)), inTeam(false) {}
              
             virtual ~Character() {}
 
@@ -38,9 +39,16 @@ namespace ariel {
             Character(Character&& someone) noexcept : hitPoints(someone.getHP()) {}
 
 
+            void addedToTeam() {this->inTeam = true;}
+            bool isInTeam() { return this->inTeam;}
             bool isAlive() const { return (this->hitPoints > 0);}
             double distance(Character* enemy) { return this->location.distance(enemy->getLocation());}
-            void hit(int damage) { this->hitPoints -= damage;}
+            void hit(int damage) { 
+                if(damage < 0) {
+                    throw invalid_argument("damage cannot be negative");
+                }
+                this->hitPoints -= damage;
+            }
             string getName() const { return this->name;}
             Point getLocation() const { return this->location;}
             void setLocation(Point newLocation) {this->location = newLocation;}

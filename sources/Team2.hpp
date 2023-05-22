@@ -18,6 +18,10 @@ namespace ariel {
             Team2(Character* leada) : Team(leada) {}
 
             void attack(Team* other) {
+                if(other == nullptr) {
+                    throw invalid_argument("nullptr");
+                }
+
                 vector<Character*>& enemies = other->getAllies();
                 Character* enemyLeader = other->getLeader();
                 vector<Character*> allies = this->getAllies();
@@ -41,7 +45,7 @@ namespace ariel {
                     }
 
                     if(temp->hasboolets()) {
-                        Cowboy::shoot(victim);
+                        temp->shoot(victim);
                     }
                     else {
                         temp->reload();

@@ -15,6 +15,12 @@ namespace ariel {
 
             void move(Character* enemy) { this->setLocation(Point::moveTowards(this->getLocation(), enemy->getLocation(), this->getSpeed()));}
             void slash(Character* enemy) {
+                if(this == enemy) {
+                    throw runtime_error("no self harm");
+                }
+                if(!this->isAlive() || !enemy->isAlive()) {
+                    throw runtime_error("dead");
+                }
                 if(this->distance(enemy) <= 1) {
                     enemy->hit(ninja_damage);
                 }

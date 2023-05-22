@@ -19,7 +19,25 @@ namespace ariel {
              : Character(std::move(name), location, cowboy_hp), bullets(mag_size) {}
 
             bool hasboolets() const { return (this->bullets > 0);}
-            void reload() { this->bullets = mag_size;}
-            static void shoot(Character* enemy) { enemy->hit(cowboy_damage);}
+
+            void reload() { 
+                if(this->isAlive()) {
+                    throw runtime_error("dead cowboy can not reload");
+                }
+                this->bullets = mag_size;
+            }
+
+            void shoot(Character* enemy) {
+                if(this == enemy) {
+                    throw runtime_error("no self harm");
+                }
+                if(!this->isAlive() || !enemy->isAlive()) {
+                    throw runtime_error("dead");
+                }
+                if(this->hasboolets()) {
+                    enemy->hit(cowboy_damage);
+                    this->bullets -= 1;
+                }
+            }
     };
 }

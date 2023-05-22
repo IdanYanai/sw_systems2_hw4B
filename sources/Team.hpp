@@ -19,7 +19,7 @@ namespace ariel {
 
         public:
             // leader index is always 0
-            Team(Character* leada) { this->allies.push_back(leada);}
+            Team(Character* leada) {this->add(leada);}
             ~Team() {}
 
             // copy constructor
@@ -34,10 +34,26 @@ namespace ariel {
             // move constructor
             Team(Team&& someone) noexcept {}
 
-            void add(Character* toAdd) { allies.push_back(toAdd);}
+            void add(Character* toAdd) { 
+                if(allies.size() == 10) {
+                    throw runtime_error("max team size reached");
+                }
+                if(toAdd->isInTeam()) {
+                    throw runtime_error("Player already in team");
+                }
+                allies.push_back(toAdd);
+                toAdd->addedToTeam();
+            }
             int stillAlive() { return int(allies.size());}
 
             virtual void attack(Team* other) {
+                if(other == nullptr) {
+                    throw invalid_argument("nullptr");
+                }
+                if(other->stillAlive() == 0) {
+                    return;
+                }
+
                 vector<Character*>& enemies = other->getAllies();
                 Character* enemyLeader = other->getLeader();
 
@@ -60,15 +76,17 @@ namespace ariel {
                     }
 
                     if(temp->hasboolets()) {
-                        Cowboy::shoot(victim);
+                        temp->shoot(victim);
                     }
                     else {
                         temp->reload();
                     }
 
                     if(!(victim->isAlive())) {
-                        cout << victim->print() << " has died" << endl;
                         other->death(victim);
+                        if(other->stillAlive() == 0) {
+                            return;
+                        }
                         victimIndex = findClosestCharacter(enemies, allies[size_t(0)]);
                         victim = enemies[size_t(victimIndex)];
                     }
@@ -89,8 +107,10 @@ namespace ariel {
                     }
 
                     if(!(victim->isAlive())) {
-                        cout << victim->print() << " has died" << endl;
                         other->death(victim);
+                        if(other->stillAlive() == 0) {
+                            return;
+                        }
                         victimIndex = findClosestCharacter(enemies, allies[size_t(0)]);
                         victim = enemies[size_t(victimIndex)];
                     }
