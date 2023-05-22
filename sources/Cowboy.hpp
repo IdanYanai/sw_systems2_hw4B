@@ -21,7 +21,7 @@ namespace ariel {
             bool hasboolets() const { return (this->bullets > 0);}
 
             void reload() { 
-                if(this->isAlive()) {
+                if(!this->isAlive()) {
                     throw runtime_error("dead cowboy can not reload");
                 }
                 this->bullets = mag_size;

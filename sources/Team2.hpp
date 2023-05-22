@@ -21,16 +21,18 @@ namespace ariel {
                 if(other == nullptr) {
                     throw invalid_argument("nullptr");
                 }
+                if(other->stillAlive() == 0) {
+                    throw runtime_error("dead team");
+                }
 
+                vector<Character*>& allies = this->getAllies();
                 vector<Character*>& enemies = other->getAllies();
                 Character* enemyLeader = other->getLeader();
-                vector<Character*> allies = this->getAllies();
 
                 // Check if leader is dead and change to closest ally if true
                 if( ! (enemyLeader->isAlive())) {
                     int minIndex = findClosestCharacter(enemies, enemyLeader);
                     other->setLeader(minIndex);
-                    enemies.erase(enemies.begin() + minIndex);
                 }
 
                 // Find enemy thats closest to own leader
@@ -52,8 +54,10 @@ namespace ariel {
                     }
 
                     if(!(victim->isAlive())) {
-                        cout << victim->print() << " has died" << endl;
                         other->death(victim);
+                        if(other->stillAlive() == 0) {
+                            return;
+                        }
                         victimIndex = findClosestCharacter(enemies, allies[size_t(0)]);
                         victim = enemies[size_t(victimIndex)];
                     }
@@ -74,8 +78,10 @@ namespace ariel {
                     }
 
                     if(!(victim->isAlive())) {
-                        cout << victim->print() << " has died" << endl;
                         other->death(victim);
+                        if(other->stillAlive() == 0) {
+                            return;
+                        }
                         victimIndex = findClosestCharacter(enemies, allies[size_t(0)]);
                         victim = enemies[size_t(victimIndex)];
                     }
