@@ -18,65 +18,58 @@ namespace ariel {
         public:
             SmartTeam(Character* leada) : Team(leada) {}
 
-            void attack(Team* other) {
-            vector<Character*>& enemies = other->getAllies();
-            Character* enemyLeader = other->getLeader();
-            vector<Character*> allies = this->getAllies();
-
-            // Check if leader is dead and change to closest ally if true
-            if( ! (enemyLeader->isAlive())) {
-                int minIndex = findClosestCharacter(enemies, enemyLeader);
-                other->setLeader(minIndex);
-                enemies.erase(enemies.begin() + minIndex);
-            }
-
-            // Find enemy thats closest to own leader
-            int victimIndex = findClosestCharacter(enemies, allies[size_t(0)]);
-            Character* victim = enemies[size_t(victimIndex)];
-
-            // Cowboys attack
-            for(int i=0;i<allies.size();i++) {
-                Cowboy* temp = dynamic_cast<Cowboy*>(allies[size_t(i)]);
-                if(temp == nullptr) {
-                    continue;
+            void attack(Team* other) override {
+                if(other == nullptr) {
+                    throw invalid_argument("nullptr");
+                }
+                if(other->stillAlive() == 0) {
+                    throw runtime_error("dead team");
                 }
 
-                if(temp->hasboolets()) {
-                    Cowboy::shoot(victim);
-                }
-                else {
-                    temp->reload();
+                vector<Character*>& enemies = other->getAllies();
+                vector<Character*>& allies = this->getAllies();
+                Character* leader = this->getLeader();
+
+                // Check if leader is dead and change to closest ally if true
+                if( ! (leader->isAlive())) {
+                    Character* newLeader = findClosestCharacter(allies, leader);
+                    this->death(leader);
+                    this->setLeader(newLeader);
                 }
 
-                if(!(victim->isAlive())) {
-                    cout << victim->print() << " has died" << endl;
-                    other->death(victim);
-                    victimIndex = findClosestCharacter(enemies, allies[size_t(0)]);
-                    victim = enemies[size_t(victimIndex)];
-                }
-            }
+                // Find enemy thats closest to own leader
+                Character* victim = findClosestCharacter(enemies, leader);
 
-            // Ninjas attack
-            for(int i=0;i<allies.size();i++) {
-                Ninja* temp = dynamic_cast<Ninja*>(allies[size_t(i)]);
-                if(temp == nullptr) {
-                    continue;
-                }
+                // attack
+                for(int i=0;i<allies.size();i++) {
+                    Cowboy* isCowboy = dynamic_cast<Cowboy*>(allies[size_t(i)]);
+                    if(isCowboy != nullptr) {
+                        if(isCowboy->hasboolets()) {
+                            isCowboy->shoot(victim);
+                        }
+                        else {
+                            isCowboy->reload();
+                        }
+                    }
+                    else {
+                        Ninja* isNinja = dynamic_cast<Ninja*>(allies[size_t(i)]);
+                        if(isNinja->distance(victim) <= 1) {
+                            isNinja->slash(victim);
+                        }
+                        else {
+                            isNinja->move(victim);
+                        }
+                    }
 
-                if(temp->distance(victim) <= 1) {
-                    temp->slash(victim);
-                }
-                else {
-                    temp->move(victim);
-                }
+                    if(!(victim->isAlive())) {
+                        other->death(victim);
+                        if(other->stillAlive() == 0) {
+                            return;
+                        }
+                        victim = findClosestCharacter(enemies, leader);
 
-                if(!(victim->isAlive())) {
-                    cout << victim->print() << " has died" << endl;
-                    other->death(victim);
-                    victimIndex = findClosestCharacter(enemies, allies[size_t(0)]);
-                    victim = enemies[size_t(victimIndex)];
+                    }
                 }
             }
-        }
     };
 }

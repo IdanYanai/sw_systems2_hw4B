@@ -12,6 +12,8 @@ using namespace std;
 #include "OldNinja.hpp"
 #include "Cowboy.hpp"
 
+const int maxTeamSize = 10;
+
 namespace ariel {
     class Team {
         private:
@@ -19,23 +21,27 @@ namespace ariel {
             Character* leader;
 
         public:
-            Team(Character* leada) {this->add(leada); leader = leada;}
-            ~Team() {}
+            Team(Character* leada) : leader(leada) {this->add(leada);}
+            virtual ~Team() {
+                for(auto & ally : allies) {
+                    delete ally;
+                }
+            }
 
             // copy constructor
-            Team(const Team& someone) {}
+            Team(const Team& someone) : leader(someone.leader), allies(someone.allies) {}
 
             // assignment operator
-            Team& operator=(const Team& other) {return *this;}
+            Team& operator=(const Team& other) {if(&other != this) {} return *this;}
 
             // move assignment operator
             Team& operator=(Team&& other) noexcept {return *this;}
 
             // move constructor
-            Team(Team&& someone) noexcept {}
+            Team(Team&& someone) noexcept : leader(someone.getLeader()) {}
 
             void add(Character* toAdd) { 
-                if(allies.size() == 10) {
+                if(allies.size() == maxTeamSize) {
                     throw runtime_error("max team size reached");
                 }
                 if(toAdd->isInTeam()) {
@@ -55,18 +61,16 @@ namespace ariel {
                 }
 
                 vector<Character*>& enemies = other->getAllies();
-                Character* enemyLeader = other->getLeader();
 
                 // Check if leader is dead and change to closest ally if true
-                if( ! (enemyLeader->isAlive())) {
-                    other->death(enemyLeader);
-                    int minIndex = findClosestCharacter(enemies, enemyLeader);
-                    other->setLeader(enemies[minIndex]);
+                if( ! (this->leader->isAlive())) {
+                    Character* newLeader = findClosestCharacter(allies, this->leader);
+                    this->death(this->leader);
+                    this->setLeader(newLeader);
                 }
 
                 // Find enemy thats closest to own leader
-                int victimIndex = findClosestCharacter(enemies, this->leader);
-                Character* victim = enemies[size_t(victimIndex)];
+                Character* victim = findClosestCharacter(enemies, this->leader);
 
                 // Cowboys attack
                 for(int i=0;i<allies.size();i++) {
@@ -87,8 +91,7 @@ namespace ariel {
                         if(other->stillAlive() == 0) {
                             return;
                         }
-                        victimIndex = findClosestCharacter(enemies, this->leader);
-                        victim = enemies[size_t(victimIndex)];
+                        victim = findClosestCharacter(enemies, this->leader);
                     }
                 }
 
@@ -111,8 +114,7 @@ namespace ariel {
                         if(other->stillAlive() == 0) {
                             return;
                         }
-                        victimIndex = findClosestCharacter(enemies, this->leader);
-                        victim = enemies[size_t(victimIndex)];
+                        victim = findClosestCharacter(enemies, this->leader);
                     }
                 }
             }
@@ -135,19 +137,19 @@ namespace ariel {
                 }
             }
 
-            static int findClosestCharacter(vector<Character*> team, Character* someone) {
+            static Character* findClosestCharacter(vector<Character*> team, Character* someone) {
                 double minDistance = std::numeric_limits<int>::max();
-                int minIndex = 0;
+                Character* minCharacter = nullptr;
                 for(int i=0;i<team.size();i++) {
                     if(team[size_t(i)] == someone) {
                         continue;
                     }
                     if(team[size_t(i)]->distance(someone) < minDistance) {
                         minDistance = team[size_t(i)]->distance(someone);
-                        minIndex = i;
+                        minCharacter = team[size_t(i)];
                     }
                 }
-                return minIndex;
+                return minCharacter;
             }
     };
 }

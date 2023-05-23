@@ -18,7 +18,7 @@ namespace ariel {
                 return sqrt(pow(this->x - other.getX(), 2) + pow(this->y - other.getY(), 2));
             }
 
-            static Point moveTowards(Point src, Point dst, int speed) {
+            static Point moveTowards(Point src, Point dst, double speed) {
                 if(speed < 0) {
                     throw invalid_argument("speed is positive");
                 }
@@ -27,8 +27,9 @@ namespace ariel {
                 if(speed >= distance) {
                     return dst;
                 }
-                double newX = src.getX() + ((dst.getX() - src.getX()) * speed / distance);
-                double newY = src.getY() + ((dst.getY() - src.getY()) * speed / distance);
+                double ratio = speed / distance;
+                double newX = src.getX() + ((dst.getX() - src.getX()) * ratio);
+                double newY = src.getY() + ((dst.getY() - src.getY()) * ratio);
                 return Point(newX, newY);
             }
 

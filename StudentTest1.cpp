@@ -531,11 +531,15 @@ TEST_SUITE("Battle simulations") {
             team_c1->shoot(team2_c3);
         }
 
+        team2.print();
+
         CHECK((!team2_c2->isAlive() && team2_c1->isAlive() && !team2_c3->isAlive() && team2_c4->isAlive()));
 
         //Next captain should be team2_c1, hence, the next enemy to be attacked by team2 should team_cc.
         multi_attack(7, team2, team1);
         CHECK((!team_c3->isAlive() && team_c1->isAlive() && !team_c2->isAlive()));
+
+        team2.print();
 
         while (team1.stillAlive() && team2.stillAlive()) {
             team1.attack(&team2);

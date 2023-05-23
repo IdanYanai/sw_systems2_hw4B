@@ -6,6 +6,7 @@
 
 using namespace std;
 
+#include "Team.hpp"
 #include "Character.hpp"
 #include "YoungNinja.hpp"
 #include "TrainedNinja.hpp"
@@ -17,7 +18,7 @@ namespace ariel {
         public:
             Team2(Character* leada) : Team(leada) {}
 
-            void attack(Team* other) {
+            void attack(Team* other) override {
                 if(other == nullptr) {
                     throw invalid_argument("nullptr");
                 }
@@ -25,32 +26,39 @@ namespace ariel {
                     throw runtime_error("dead team");
                 }
 
-                vector<Character*>& allies = this->getAllies();
                 vector<Character*>& enemies = other->getAllies();
-                Character* enemyLeader = other->getLeader();
+                vector<Character*>& allies = this->getAllies();
+                Character* leader = this->getLeader();
 
                 // Check if leader is dead and change to closest ally if true
-                if( ! (enemyLeader->isAlive())) {
-                    int minIndex = findClosestCharacter(enemies, enemyLeader);
-                    other->setLeader(minIndex);
+                if( ! (leader->isAlive())) {
+                    Character* newLeader = findClosestCharacter(allies, leader);
+                    this->death(leader);
+                    this->setLeader(newLeader);
                 }
 
                 // Find enemy thats closest to own leader
-                int victimIndex = findClosestCharacter(enemies, allies[size_t(0)]);
-                Character* victim = enemies[size_t(victimIndex)];
+                Character* victim = findClosestCharacter(enemies, leader);
 
-                // Cowboys attack
+                // attack
                 for(int i=0;i<allies.size();i++) {
-                    Cowboy* temp = dynamic_cast<Cowboy*>(allies[size_t(i)]);
-                    if(temp == nullptr) {
-                        continue;
-                    }
-
-                    if(temp->hasboolets()) {
-                        temp->shoot(victim);
+                    Cowboy* isCowboy = dynamic_cast<Cowboy*>(allies[size_t(i)]);
+                    if(isCowboy != nullptr) {
+                        if(isCowboy->hasboolets()) {
+                            isCowboy->shoot(victim);
+                        }
+                        else {
+                            isCowboy->reload();
+                        }
                     }
                     else {
-                        temp->reload();
+                        Ninja* isNinja = dynamic_cast<Ninja*>(allies[size_t(i)]);
+                        if(isNinja->distance(victim) <= 1) {
+                            isNinja->slash(victim);
+                        }
+                        else {
+                            isNinja->move(victim);
+                        }
                     }
 
                     if(!(victim->isAlive())) {
@@ -58,32 +66,8 @@ namespace ariel {
                         if(other->stillAlive() == 0) {
                             return;
                         }
-                        victimIndex = findClosestCharacter(enemies, allies[size_t(0)]);
-                        victim = enemies[size_t(victimIndex)];
-                    }
-                }
+                        victim = findClosestCharacter(enemies, leader);
 
-                // Ninjas attack
-                for(int i=0;i<allies.size();i++) {
-                    Ninja* temp = dynamic_cast<Ninja*>(allies[size_t(i)]);
-                    if(temp == nullptr) {
-                        continue;
-                    }
-
-                    if(temp->distance(victim) <= 1) {
-                        temp->slash(victim);
-                    }
-                    else {
-                        temp->move(victim);
-                    }
-
-                    if(!(victim->isAlive())) {
-                        other->death(victim);
-                        if(other->stillAlive() == 0) {
-                            return;
-                        }
-                        victimIndex = findClosestCharacter(enemies, allies[size_t(0)]);
-                        victim = enemies[size_t(victimIndex)];
                     }
                 }
             }
